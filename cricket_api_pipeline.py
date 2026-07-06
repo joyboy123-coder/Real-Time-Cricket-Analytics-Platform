@@ -22,6 +22,11 @@ def fetch_cricket_data(**kwargs):
     response = requests.get(url)
     data = response.json()
 
+    # Raise exception on CricAPI failure to avoid overwriting S3 with error JSON
+    if data.get("status") == "failure" or "error" in data:
+        reason = data.get("reason") or data.get("error") or "Unknown CricAPI error"
+        raise ValueError(f"CricAPI returned a failure status: {reason}")
+
     s3 = boto3.client("s3")
 
     s3.put_object(

@@ -1,5 +1,7 @@
 # 🏏 Real-Time Cricket Analytics & Telemetry Platform
 
+![Chronicle Project Poster](assets/project_poster.jpg)
+
 [![Vercel Deployment](https://img.shields.io/badge/Vercel-Deployed-black?style=for-the-badge&logo=vercel)](https://chronicle-live.vercel.app)
 [![DBT Core](https://img.shields.io/badge/dbt-v1.8+-orange?style=for-the-badge&logo=dbt)](https://github.com/Vamsi-Kandregula/Real-Time-Cricket-Analytics-Platform)
 [![Databricks](https://img.shields.io/badge/Databricks-Spark-red?style=for-the-badge&logo=databricks)](https://github.com/Vamsi-Kandregula/Real-Time-Cricket-Analytics-Platform/blob/main/scripts/databricks_clean_notebook.py)

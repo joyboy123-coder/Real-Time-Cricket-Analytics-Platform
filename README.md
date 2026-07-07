@@ -1,132 +1,117 @@
 # 🏏 Real-Time Cricket Analytics & Telemetry Platform
 
-[![Vercel Deployment](https://img.shields.io/badge/Vercel-Deployed-black?style=for-the-badge&logo=vercel)](https://criket-fd.vercel.app)
-[![DBT Core](https://img.shields.io/badge/dbt-v1.8+-orange?style=for-the-badge&logo=dbt)](https://github.com/joyboy123-coder/dbt_cricket)
-[![Databricks](https://img.shields.io/badge/Databricks-Spark-red?style=for-the-badge&logo=databricks)](https://github.com/joyboy123-coder/dbt_cricket/blob/main/scripts/databricks_clean_notebook.py)
-[![Snowflake DWH](https://img.shields.io/badge/Snowflake-DWH-blue?style=for-the-badge&logo=snowflake)](https://github.com/joyboy123-coder/dbt_cricket/blob/main/sql/snowflake_setup.sql)
-[![React 19](https://img.shields.io/badge/React-19-blue?style=for-the-badge&logo=react)](https://github.com/joyboy123-coder/Criket-FD)
-
-A premium, production-grade SaaS sports analytics platform that automates live cricket matches data ingestion, processes it on a distributed Spark cluster, builds unified data warehouse schemas with **dbt**, and serves real-time KPIs over an optimized API to a stunning glassmorphic dashboard.
+Welcome to the **Real-Time Cricket Analytics & Telemetry Platform**! This repository hosts the end-to-end serverless data engineering pipeline that pulls live match feeds, cleans them with Spark, models them in Snowflake, and serves them to a beautiful React dashboard.
 
 ---
 
-## 🔗 Live Access & Repositories
+## 🔗 Live Access Links
 
-| Component | Hosted Deployment URL | Source Code Repository |
-| :--- | :--- | :--- |
-| **🎨 React Frontend UI** | [criket-fd.vercel.app](https://criket-fd.vercel.app) | [joyboy123-coder/Criket-FD](https://github.com/joyboy123-coder/Criket-FD) |
-| **⚙️ Node.js API Backend** | [cricket-bd.vercel.app/api-docs](https://cricket-bd.vercel.app/api-docs) | [joyboy123-coder/Cricket-BD](https://github.com/joyboy123-coder/Cricket-BD) |
-| **🚀 Data Pipeline & DBT** | *Scheduled via GitHub Actions* | [joyboy123-coder/dbt_cricket](https://github.com/joyboy123-coder/dbt_cricket) |
+We have deployed the entire stack. You can access the live dashboards and code below:
+
+* **🎨 Frontend UI Website**: [criket-fd.vercel.app](https://criket-fd.vercel.app) *(Source: [`joyboy123-coder/Criket-FD`](https://github.com/joyboy123-coder/Criket-FD))*
+* **⚙️ Backend API Service**: [cricket-bd.vercel.app/api-docs](https://cricket-bd.vercel.app/api-docs) *(Source: [`joyboy123-coder/Cricket-BD`](https://github.com/joyboy123-coder/Cricket-BD))*
+* **🚀 Data Ingestion & Models**: *GitHub Actions Scheduled* *(Source: [`joyboy123-coder/dbt_cricket`](https://github.com/joyboy123-coder/dbt_cricket))*
 
 ---
 
-## 🏗️ System Architecture & Data Telemetry Flow
+## 🏗️ Pipeline Architecture
+
+Here is how the data flows from the cricket stadium to your screen:
 
 ```mermaid
-flowchart TD
-    subgraph Ingestion [1. Ingestion Layer]
-        A[CricAPI v1 API] -->|fetch_api.py| B[(AWS S3: Raw Bucket)]
-    end
+flowchart LR
+    %% Data flow nodes
+    A(🏏 CricAPI) -->|1. fetch_api.py| B[(☁️ AWS S3 Raw)]
+    B -->|2. Trigger ETL| C[🔥 Databricks Spark]
+    C -->|3. Save Parquet| D[(☁️ AWS S3 Clean)]
+    D -->|4. Copy Stream| E[(❄️ Snowflake DWH)]
+    E -->|5. dbt run & test| F[(📊 dbt Analytics Marts)]
+    F -->|6. SQL Query| G[🛡️ Node.js API]
+    G -->|7. JSON Feed| H[🎨 React Dashboard]
 
-    subgraph Compute [2. Lakehouse Processing]
-        B -->|Trigger API / PySpark| C[Databricks Spark Job]
-        C -->|Flatten & Clean Schema| B
-        B -->|Write Parquet| D[(AWS S3: Clean & Score Zones)]
-    end
-
-    subgraph Warehouse [3. Storage & Transformation]
-        D -->|Storage Integration Stage| E[(Snowflake External Stage)]
-        E -->|merge_matches.sql / merge_score.sql| F[(Snowflake Raw Database)]
-        F -->|dbt run & test| G[(dbt staging, facts & marts)]
-    end
-
-    subgraph Service [4. Service Layer]
-        G -->|Read mart_dashboard_summary| H[Node.js + Express API Backend]
-    end
-
-    subgraph Frontend [5. Presentation Layer]
-        H -->|JSON Endpoints / Swagger Docs| I[React 19 + Vite Frontend Website]
-    end
-
-    %% Styles
-    classDef layer fill:#f9f9f9,stroke:#ddd,stroke-width:1px;
-    class Ingestion,Compute,Warehouse,Service,Frontend layer;
+    %% Styling colors
+    style A fill:#f9d5e5,stroke:#eeeeee,stroke-width:1px
+    style B fill:#eeac99,stroke:#eeeeee,stroke-width:1px
+    style C fill:#e06377,stroke:#eeeeee,stroke-width:1px
+    style D fill:#eeac99,stroke:#eeeeee,stroke-width:1px
+    style E fill:#c83349,stroke:#eeeeee,stroke-width:1px
+    style F fill:#5b9aa0,stroke:#eeeeee,stroke-width:1px
+    style G fill:#d6e4e5,stroke:#eeeeee,stroke-width:1px
+    style H fill:#b2d8d8,stroke:#eeeeee,stroke-width:1px
 ```
 
 ---
 
-## 🛠️ Tech Stack & Implementation Details
+## 📁 Repository Structure
 
-### 1. Ingestion & Pipeline Orchestration
-* **Orchestrator**: Scheduled via a serverless **GitHub Actions** cron script ([`cricket_pipeline.yml`](file:///c:/Users/yamin/OneDrive/airflow-project/dags/dbt_cricket_project/.github/workflows/cricket_pipeline.yml)) running every 15 minutes.
-* **Fallback DAGs**: Maintains two local **Airflow 2** DAG files:
-  * [`cricket_api_pipeline.py`](file:///c:/Users/yamin/OneDrive/airflow-project/dags/dbt_cricket_project/cricket_api_pipeline.py) (Ingestion, S3 Key Sensor, Databricks Operator, and Snowflake load).
-  * [`cricket_dbt_pipeline.py`](file:///c:/Users/yamin/OneDrive/airflow-project/dags/dbt_cricket_project/cricket_dbt_pipeline.py) (DBT compilation run & tests).
-* **Ingestion Scripts**: Standalone Python scripts executing modular parts:
-  * [`fetch_api.py`](file:///c:/Users/yamin/OneDrive/airflow-project/dags/dbt_cricket_project/scripts/fetch_api.py): Requests current live matches from CricAPI and stages raw JSON on S3.
-  * [`trigger_databricks.py`](file:///c:/Users/yamin/OneDrive/airflow-project/dags/dbt_cricket_project/scripts/trigger_databricks.py): Calls Databricks REST endpoint and polls status.
-  * [`merge_matches.py`](file:///c:/Users/yamin/OneDrive/airflow-project/dags/dbt_cricket_project/scripts/merge_matches.py) & [`merge_score.py`](file:///c:/Users/yamin/OneDrive/airflow-project/dags/dbt_cricket_project/scripts/merge_score.py): Execute Snowflake upsert operations.
+We restructured the folders to keep the code neat and professional:
 
-### 2. Databricks PySpark Clean Job
-* **Script**: [`databricks_clean_notebook.py`](file:///c:/Users/yamin/OneDrive/airflow-project/dags/dbt_cricket_project/scripts/databricks_clean_notebook.py)
-* **How it cleans**:
-  * Loads raw nested JSON file using multiline parser.
-  * Explodes `data` matches logs and normalizes matches fields.
-  * Flattens nested score arrays `match.score` into dynamic rows.
-  * Cleans data types (casts Runs/Wickets to `Int`, Overs to `Double`, converts timestamps to date parameters).
-  * Writes separate Matches and Scores Parquet directories back to S3.
-
-### 3. Snowflake Storage Integration & Target Schema
-* **Setup SQL**: [`snowflake_setup.sql`](file:///c:/Users/yamin/OneDrive/airflow-project/dags/dbt_cricket_project/sql/snowflake_setup.sql)
-* **Storage Integration**: Secure AWS IAM Role ARN configuration granting Snowflake access to S3 bucket without keys.
-* **External Stage**: `@CRICKET_STAGE` mapping directly to S3 Parquet paths.
-
-### 4. DBT Analytical Transformation Models ([dbt_project/](file:///c:/Users/yamin/OneDrive/airflow-project/dags/dbt_cricket_project/dbt_project))
-* **Staging Layer** ([`models/staging/stg_cricket_matches.sql`](file:///c:/Users/yamin/OneDrive/airflow-project/dags/dbt_cricket_project/dbt_project/models/staging/stg_cricket_matches.sql)): Deduplicates records based on `MATCH_ID` (most recent fetch dates) and casts UTC GMT to India timezone (`Asia/Kolkata`).
-* **Fact Layer** ([`models/marts/fact_cricket_matches.sql`](file:///c:/Users/yamin/OneDrive/airflow-project/dags/dbt_cricket_project/dbt_project/models/marts/fact_cricket_matches.sql)): Parses raw match status string using RegExp to extract `WINNER`, `WIN_MARGIN` and outcomes (`RESULT_TYPE`).
-* **Marts Layer**:
-  * [`mart_matches.sql`](file:///c:/Users/yamin/OneDrive/airflow-project/dags/dbt_cricket_project/dbt_project/models/marts/mart_matches.sql): Side-by-side matches detail, runs, wickets, and overs for both teams.
-  * [`mart_venue_stats.sql`](file:///c:/Users/yamin/OneDrive/airflow-project/dags/dbt_cricket_project/dbt_project/models/marts/mart_venue_stats.sql): Aggregated stadium telemetry, average runs, lat/long mapping coordinates, and flags.
-  * [`mart_dashboard_summary.sql`](file:///c:/Users/yamin/OneDrive/airflow-project/dags/dbt_cricket_project/dbt_project/models/marts/mart_dashboard_summary.sql): Prepares a single row containing platform KPIs.
-
-### 5. Node.js Service Layer (Backend)
-* **Technology**: Node.js, Express, `snowflake-sdk`, Swagger OpenAPI, CORS.
-* **Functionality**: Establishes connection pools to Snowflake, queries dbt-transformed tables like `MART_DASHBOARD_SUMMARY`, and maps results to optimized JSON endpoints.
-* **Main Endpoint**: `GET /api/dashboard`
-  ```json
-  {
-    "totalMatches": 11,
-    "liveMatches": 2,
-    "completedMatches": 7,
-    "abandonedMatches": 2,
-    "citiesIngested": 7,
-    "venuesRegistered": 6,
-    "matchFormats": 6,
-    "resultDeciders": 8
-  }
-  ```
-
-### 6. React Analytics Dashboard (Frontend)
-* **Technology**: React 19, TypeScript, Vite 8, Framer Motion, Tailwind CSS, TanStack React Query, Axios, Apache ECharts.
-* **Features**:
-  * **Dashboard tab**: Glassmorphic dark widgets displaying real-time metrics dynamically loaded from Snowflake.
-  * **Live Match Center tab**: Scorecards showing current innings progress.
-  * **Match Explorer & Venues tabs**: Detailed visual breakdown of data.
-  * **Pipeline Monitor**: Interactive logs visualizer displaying the status of S3 uploads, CricAPI, and Snowflake connections.
-  * **Connection Guard**: Displays a clean reconnect UI if database connection drops.
+* **`dbt_project/`** 📊: Contains only the DBT configuration files, macros, and SQL transformation models.
+* **`airflow_dags/`** ⚙️: Contains the local Airflow DAG files for orchestration testing.
+* **`scripts/`** 🐍: Contains Python automation scripts for CricAPI fetching, Databricks triggering, Snowflake loading, and DBT execution.
+* **`sql/`** 🗄️: Contains Snowflake SQL files for storage integrations, stages, and raw table schemas.
+* **`.github/workflows/`** 🚀: GitHub Actions workflow file that runs the pipeline serverless every 15 minutes.
 
 ---
 
-## 🚀 Local Installation & Start
+## ⚙️ Data Ingestion Stages
+
+### 📥 Step 1: Raw JSON Ingestion
+The Python script [`fetch_api.py`](file:///c:/Users/yamin/OneDrive/airflow-project/dags/dbt_cricket_project/scripts/fetch_api.py) fetches live matches from CricAPI and uploads them directly to an S3 raw directory:
+* **Storage Location**: `s3://airflowdemo1817/cricket/raw/{date}/matches.json`
+
+### 🧹 Step 2: Databricks PySpark Clean
+A distributed PySpark cluster loads the raw JSON, cleans the schema, flattens the nested innings score structures, and writes them back to S3 as Parquet tables:
+* **Script**: [`databricks_clean_notebook.py`](file:///c:/Users/yamin/OneDrive/airflow-project/dags/dbt_cricket_project/scripts/databricks_clean_notebook.py)
+* **Output Paths**:
+  * Clean Matches: `s3://airflowdemo1817/cricket/clean/{date}/`
+  * Clean Scores: `s3://airflowdemo1817/cricket/score/{date}/`
+
+### ❄️ Step 3: Snowflake Secure Integration & Loading
+We set up a secure, credentials-free connection using **Snowflake Storage Integrations** to map the S3 directory to a Snowflake External Stage:
+* **Setup Script**: [`snowflake_setup.sql`](file:///c:/Users/yamin/OneDrive/airflow-project/dags/dbt_cricket_project/sql/snowflake_setup.sql)
+* **Merges**: Python files ([`merge_matches.py`](file:///c:/Users/yamin/OneDrive/airflow-project/dags/dbt_cricket_project/scripts/merge_matches.py) and [`merge_score.py`](file:///c:/Users/yamin/OneDrive/airflow-project/dags/dbt_cricket_project/scripts/merge_score.py)) use Snowflake SQL `MERGE INTO` to copy the staged Parquet records into active tables.
+
+---
+
+## 📊 Analytical DBT Models ([dbt_project/](file:///c:/Users/yamin/OneDrive/airflow-project/dags/dbt_cricket_project/dbt_project))
+
+dbt transforms raw records in Snowflake through three clean stages:
+
+1. **Staging** 📁 (`stg_cricket_matches.sql`): Deduplicates match records using row numbers and converts timestamps from UTC to India Timezone (`Asia/Kolkata`).
+2. **Facts** 📊 (`fact_cricket_matches.sql`, `fact_match_score.sql`):
+   * Maps statuses using strict logic rules:
+     * **Match Tied**: Classified as `Match Tied` (e.g. Lancashire vs Derbyshire).
+     * **No Result**: Classified as `No Result` (e.g. Hubli Tigers vs Mysore Warriors).
+     * **Abandoned**: Classified as `Abandoned` (when no ball is bowled).
+     * **Completed / Live**: Classified as `Completed` or `Live`.
+3. **Marts** 📈 (`mart_matches.sql`, `mart_venue_stats.sql`, `mart_dashboard_summary.sql`):
+   * Aggregates venue statistics, flag codes, geolocation coordinates, and overall KPI metrics.
+
+---
+
+## 🎨 UI Dashboard Website & Backend Server
+
+* **Express Backend ([Cricket-BD](file:///c:/Users/yamin/OneDrive/my%20projects/Cricket-BD))**: 
+  * Connects to Snowflake using the `snowflake-sdk`.
+  * Exposes the endpoints like `GET /api/dashboard` which queries the DBT mart table `MART_DASHBOARD_SUMMARY`.
+  * Integrates Swagger OpenAPI interactive documentation for developer tests.
+* **React Dashboard ([Criket-FD](file:///c:/Users/yamin/OneDrive/my%20projects/Criket-FD))**:
+  * Built using **React 19**, **Vite 8**, **Tailwind CSS**, and **Framer Motion** (for smooth glassmorphic interface micro-animations).
+  * Uses **TanStack React Query** for robust network requests, polling, and auto-retries on database offline warnings.
+  * Embeds **Apache ECharts** for premium, clean sports charts and data visualizations.
+
+---
+
+## 🚀 Local Execution Guide
 
 ### 1. Ingestion Pipeline & dbt
-Install Python dependencies and configure environment variables in your terminal:
+Install Python dependencies and execute scripts in order:
 ```bash
 cd dbt_cricket_project
 pip install -r requirements.txt
-```
-To test individual pipeline tasks manually:
-```bash
+
+# Execute steps manually
 python scripts/fetch_api.py
 python scripts/trigger_databricks.py
 python scripts/merge_matches.py
@@ -135,19 +120,18 @@ python scripts/run_dbt.py
 ```
 
 ### 2. Node.js Backend API
-Navigate to the backend project folder, set up your `.env` credentials, and start the node server:
+Navigate to the backend directory, configure `.env` variables, and start development mode:
 ```bash
 cd Cricket-BD
 npm install
 npm run dev
 ```
-*The API documentation page is available at `http://localhost:5000/api-docs`.*
 
 ### 3. React Frontend Website
-Navigate to the frontend project folder, set up `.env`, and start the Vite app:
+Navigate to the frontend directory, configure `.env` endpoints, and run Vite dev server:
 ```bash
 cd Criket-FD
 npm install
 npm run dev
 ```
-*The React Dashboard UI will launch at `http://localhost:5173`.*
+Vite will launch the dashboard on `http://localhost:5173`.

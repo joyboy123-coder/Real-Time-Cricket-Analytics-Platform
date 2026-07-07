@@ -1,6 +1,6 @@
 # 🏏 Real-Time Cricket Analytics & Telemetry Platform
 
-[![Vercel Deployment](https://img.shields.io/badge/Vercel-Deployed-black?style=for-the-badge&logo=vercel)](https://criket-fd.vercel.app)
+[![Vercel Deployment](https://img.shields.io/badge/Vercel-Deployed-black?style=for-the-badge&logo=vercel)](https://chronicle-live.vercel.app)
 [![DBT Core](https://img.shields.io/badge/dbt-v1.8+-orange?style=for-the-badge&logo=dbt)](https://github.com/Vamsi-Kandregula/Real-Time-Cricket-Analytics-Platform)
 [![Databricks](https://img.shields.io/badge/Databricks-Spark-red?style=for-the-badge&logo=databricks)](https://github.com/Vamsi-Kandregula/Real-Time-Cricket-Analytics-Platform/blob/main/scripts/databricks_clean_notebook.py)
 [![Snowflake DWH](https://img.shields.io/badge/Snowflake-DWH-blue?style=for-the-badge&logo=snowflake)](https://github.com/Vamsi-Kandregula/Real-Time-Cricket-Analytics-Platform/blob/main/sql/snowflake_setup.sql)
@@ -16,7 +16,7 @@ We have deployed the entire stack. You can access the live dashboards and code b
 
 | Component | Hosted Deployment URL | Source Code Repository |
 | :--- | :--- | :--- |
-| **🎨 React Frontend UI** | [criket-fd.vercel.app](https://criket-fd.vercel.app) | [Vamsi-Kandregula/Criket-FD](https://github.com/Vamsi-Kandregula/Criket-FD) |
+| **🎨 React Frontend UI** | [chronicle-live.vercel.app](https://chronicle-live.vercel.app) | [Vamsi-Kandregula/Criket-FD](https://github.com/Vamsi-Kandregula/Criket-FD) |
 | **⚙️ Node.js API Backend** | [cricket-bd.vercel.app/api-docs](https://cricket-bd.vercel.app/api-docs) | [Vamsi-Kandregula/Cricket-BD](https://github.com/Vamsi-Kandregula/Cricket-BD) |
 | **🚀 Data Pipeline & DBT** | *Scheduled via GitHub Actions* | [Vamsi-Kandregula/Real-Time-Cricket-Analytics-Platform](https://github.com/Vamsi-Kandregula/Real-Time-Cricket-Analytics-Platform) |
 

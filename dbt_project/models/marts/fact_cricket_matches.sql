@@ -41,23 +41,20 @@ SELECT
     END AS WINNER,
 
     CASE
-        WHEN STATUS ILIKE '%won by%'
-            THEN 'Completed'
-
-        WHEN STATUS ILIKE '%won the super over%'
-            THEN 'Completed'
-
         WHEN STATUS ILIKE '%tied%' OR STATUS ILIKE '%tie%' OR STATUS ILIKE '%draw%'
-            THEN 'Completed'
+            THEN 'Match Tied'
 
-        WHEN MATCHENDED = TRUE
-            THEN 'Completed'
+        WHEN STATUS ILIKE '%no result%' OR STATUS ILIKE '%no-result%'
+            THEN 'No Result'
 
         WHEN STATUS ILIKE '%abandoned%'
             THEN 'Abandoned'
 
-        WHEN STATUS ILIKE '%no result%'
-            THEN 'No Result'
+        WHEN STATUS ILIKE '%won by%' OR STATUS ILIKE '%won the super over%'
+            THEN 'Completed'
+
+        WHEN MATCHENDED = TRUE
+            THEN 'Completed'
 
         WHEN MATCH_DATE < CURRENT_DATE
              AND (MATCHENDED = FALSE OR MATCHENDED IS NULL)

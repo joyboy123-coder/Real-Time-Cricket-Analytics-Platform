@@ -1,4 +1,4 @@
-# 🏏 Real-Time Cricket Analytics & Telemetry Platform
+# 🏏 Real-Time Cricket Analytics Platform
 
 ![Chronicle Project Poster](assets/project_poster.jpg)
 
@@ -31,7 +31,7 @@ We have deployed the entire stack. You can access the live dashboards and code b
 
 ---
 
-## 🏗️ System Architecture & Data Telemetry Flow
+## 🏗️ System Architecture & Data Flow
 
 ```mermaid
 flowchart LR
@@ -120,8 +120,8 @@ dbt transforms raw records in Snowflake through three clean stages:
 ### 📈 Dynamic Analytics & Venue Geolocations
 ![Dynamic Analytics & Venue Geolocations](assets/analytics_charts.png)
 
-### ⚙️ Ingestion Telemetry & Pipeline Monitor
-![Pipeline Telemetry Monitor](assets/pipeline_monitor.png)
+### ⚙️ Ingestion & Pipeline Monitor
+![Pipeline Monitor](assets/pipeline_monitor.png)
 
 ---
 
